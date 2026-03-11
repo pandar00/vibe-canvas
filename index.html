@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Graphics Studio — Vector Editor</title>
+  <meta name="description" content="A lightweight browser-based vector graphics editor similar to Adobe Illustrator">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#0f0f1a] text-gray-200 h-screen flex flex-col select-none">
+
+  <!-- Top Toolbar -->
+  <header class="flex items-center gap-1 px-3 py-2 bg-[#16162a] border-b border-white/5 shrink-0">
+    <!-- Logo -->
+    <div class="flex items-center gap-2 mr-4 pr-4 border-r border-white/10">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="url(#logoGrad)" stroke-width="2">
+        <defs><linearGradient id="logoGrad" x1="0" y1="0" x2="24" y2="24"><stop stop-color="#818cf8"/><stop offset="1" stop-color="#c084fc"/></linearGradient></defs>
+        <polygon points="12,2 22,8.5 22,15.5 12,22 2,15.5 2,8.5"/>
+        <line x1="12" y1="2" x2="12" y2="22" opacity="0.5"/>
+        <line x1="2" y1="8.5" x2="22" y2="8.5" opacity="0.5"/>
+      </svg>
+      <span class="text-sm font-semibold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Graphics Studio</span>
+    </div>
+
+    <!-- Drawing Tools -->
+    <div class="flex items-center gap-1">
+      <button class="tool-btn" data-tool="select" title="Select (V)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="rectangle" title="Rectangle (R)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="line" title="Line (L)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="19" x2="19" y2="5"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="pen" title="Pen (P)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+      </button>
+      <button class="tool-btn" data-tool="text" title="Text (T)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9.5" y1="20" x2="14.5" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+      </button>
+    </div>
+
+    <div class="toolbar-sep"></div>
+
+    <!-- Image Upload -->
+    <button id="imageBtn" class="tool-btn" title="Upload Image">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+    </button>
+
+    <div class="toolbar-sep"></div>
+
+    <!-- Colors -->
+    <div class="flex items-center gap-2">
+      <div class="flex flex-col items-center gap-0.5">
+        <span class="text-[9px] text-gray-500 uppercase">Stroke</span>
+        <input type="color" id="strokeColor" value="#ffffff" class="toolbar-color">
+      </div>
+      <div class="flex flex-col items-center gap-0.5">
+        <span class="text-[9px] text-gray-500 uppercase">Fill</span>
+        <input type="color" id="fillColor" value="#6366f1" class="toolbar-color">
+      </div>
+      <div class="flex flex-col items-center gap-0.5">
+        <span class="text-[9px] text-gray-500 uppercase tracking-wide">Width</span>
+        <input type="number" id="strokeWidth" value="2" min="1" max="50" class="w-12 bg-black/30 border border-white/10 rounded px-1.5 py-0.5 text-xs text-center text-gray-300 outline-none focus:border-indigo-500/50">
+      </div>
+    </div>
+
+    <div class="toolbar-sep"></div>
+
+    <!-- Font Controls -->
+    <div class="flex items-center gap-2">
+      <div class="flex flex-col items-center gap-0.5">
+        <span class="text-[9px] text-gray-500 uppercase">Font</span>
+        <select id="fontFamily" class="bg-black/30 border border-white/10 rounded px-1.5 py-0.5 text-xs text-gray-300 outline-none focus:border-indigo-500/50 cursor-pointer">
+          <option value="Inter">Inter</option>
+          <option value="Roboto">Roboto</option>
+          <option value="Outfit">Outfit</option>
+          <option value="Arial">Arial</option>
+          <option value="Georgia">Georgia</option>
+          <option value="Courier New">Courier New</option>
+          <option value="Times New Roman">Times New Roman</option>
+          <option value="Verdana">Verdana</option>
+        </select>
+      </div>
+      <div class="flex flex-col items-center gap-0.5">
+        <span class="text-[9px] text-gray-500 uppercase">Size</span>
+        <input type="number" id="fontSize" value="24" min="8" max="200" class="w-14 bg-black/30 border border-white/10 rounded px-1.5 py-0.5 text-xs text-center text-gray-300 outline-none focus:border-indigo-500/50">
+      </div>
+    </div>
+
+    <!-- Spacer -->
+    <div class="flex-1"></div>
+
+    <!-- Actions -->
+    <div class="flex items-center gap-2">
+      <button id="deleteBtn" class="action-btn danger" title="Delete selected element">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        <span>Delete</span>
+      </button>
+      <div class="toolbar-sep"></div>
+      <button id="exportBtn" class="action-btn" title="Export canvas to JSON">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>Export</span>
+      </button>
+      <button id="importBtn" class="action-btn" title="Import canvas from JSON">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span>Import</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Layout: Canvas + Right Sidebar -->
+  <div class="flex flex-1 overflow-hidden">
+    <!-- Canvas Area -->
+    <div id="canvasContainer" class="flex-1 relative overflow-hidden">
+      <canvas id="mainCanvas"></canvas>
+    </div>
+
+    <!-- Right Sidebar -->
+    <aside class="w-60 bg-[#16162a] border-l border-white/5 flex flex-col shrink-0 overflow-hidden">
+      <!-- Properties -->
+      <div class="p-3 border-b border-white/5">
+        <div class="sidebar-label mb-2">Properties</div>
+        <div id="propertyPanel">
+          <div class="text-gray-500 text-xs text-center py-4">No element selected</div>
+        </div>
+      </div>
+
+      <!-- Layers -->
+      <div class="flex-1 flex flex-col p-3 overflow-hidden">
+        <div class="flex items-center justify-between mb-2">
+          <div class="sidebar-label">Layers</div>
+          <button id="addLayerBtn" class="w-6 h-6 flex items-center justify-center rounded-md bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30 transition-colors" title="Add layer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+        <div id="layerList" class="flex-1 overflow-y-auto space-y-1">
+          <!-- Layers rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="px-3 py-2 border-t border-white/5 text-[10px] text-gray-600 text-center">
+        <span class="shortcut-hint">V</span> Select
+        <span class="shortcut-hint ml-1">R</span> Rect
+        <span class="shortcut-hint ml-1">L</span> Line
+        <span class="shortcut-hint ml-1">P</span> Pen
+        <span class="shortcut-hint ml-1">T</span> Text
+      </div>
+    </aside>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
